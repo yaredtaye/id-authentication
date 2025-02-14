@@ -440,8 +440,9 @@ public class IdAuthSecurityManager {
 			
 			String hashWithLegacyMethod = legacyHash(id);
 			if(!identityRepo.existsById(hashWithLegacyMethod)) {
+				System.out.println("TECHNIFY::: Temporarly handle this");
 				//Throw error
-				throwIdNotAvailabeError(id);
+				//throwIdNotAvailabeError(id);
 			}
 			
 			return hashWithLegacyMethod;

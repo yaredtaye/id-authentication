@@ -19,6 +19,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import io.mosip.authentication.common.service.kafka.impl.AuthenticationErrorEventingPublisher;
+import io.mosip.authentication.common.service.repository.IdentityCacheRepository;
+import io.mosip.authentication.core.partner.dto.PartnerDTO;
 import io.mosip.authentication.core.spi.indauth.service.KeyBindedTokenAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -129,13 +132,16 @@ public class AuthFacadeImpl implements AuthFacade {
 	
 	@Autowired
 	private IdInfoHelper idInfoHelper;
+	@Autowired
+	private IdentityCacheRepository identityRepo;
 
 	@Autowired
 	private KeyBindedTokenAuthService keyBindedTokenAuthService;
 
 	@Autowired
 	private PasswordAuthService passwordAuthService;
-	
+	@Autowired(required = false)
+	private AuthenticationErrorEventingPublisher authenticationErrorEventingPublisher;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -178,6 +184,13 @@ public class AuthFacadeImpl implements AuthFacade {
 		
 		Map<String, Object> idResDTO = idService.processIdType(idvIdType, idvid, idInfoHelper.isBiometricDataNeeded(authRequestDTO),
 				markVidConsumed, filterAttributes);
+
+		if (!identityRepo.existsById(idvidHash)) {
+			Optional<PartnerDTO> partner = partnerService.getPartner(partnerId, authRequestDTO.getMetadata());
+			IdAuthenticationBusinessException e = new IdAuthenticationBusinessException();
+			authenticationErrorEventingPublisher.notify(authRequestDTO, "",
+					partner, e, authRequestDTO.getMetadata());
+		}
 
 		String token = idService.getToken(idResDTO);
 

@@ -79,6 +79,28 @@ public class IdServiceImpl implements IdService<AutnTxn> {
 	@Value("${"+ IDA_AUTH_PARTNER_ID  +"}")
 	private String authPartherId;
 
+
+	@Value("${fayda.ida.client.id:mosip-ida-client}")
+	private String idaClientID;
+	@Value("${fayda.ida.client.secret:abc123}")
+	private String idaClientSecret;
+	@Value("${fayda.kernel.auth.url}")
+	private String authUrl;
+	@Value("${fayda.idrepo.url}")
+	private String idRepoUrl;
+
+	@Value("${fayda.ida.authenticate.unseeded.identity:false}")
+	private Boolean authenticateUnseeded;
+
+	@Value("${mosip.kernel.tokenid.uin.salt}")
+	private String uinSalt;
+
+	@Value("${mosip.kernel.tokenid.length}")
+	private int tokenIDLength;
+
+	@Value("${mosip.kernel.tokenid.partnercode.salt}")
+	private String partnerCodeSalt;
+
 	/*
 	 * To get Identity data from IDRepo based on UIN
 	 *
@@ -197,17 +219,29 @@ public class IdServiceImpl implements IdService<AutnTxn> {
 		try {
 			IdentityEntity entity = null;
 			if (!identityRepo.existsById(hashedId)) {
-				logger.error(IdAuthCommonConstants.SESSION_ID, this.getClass().getSimpleName(), "getIdentity",
-						"Id not found in DB");
-				throw new IdAuthenticationBusinessException(
-						IdAuthenticationErrorConstants.ID_NOT_AVAILABLE.getErrorCode(),
-						String.format(IdAuthenticationErrorConstants.ID_NOT_AVAILABLE.getErrorMessage(),
-								idType.getType()));
+				if(authenticateUnseeded) {
+					logger.info(IdAuthCommonConstants.SESSION_ID, this.getClass().getSimpleName(), "getIdentity", "AUthenticating unseeded identity");
+					//If record doenst exist on identity repo, try to load data from id repo
+					System.out.println("filterAttributes::::::::::::::::::::::::"+filterAttributes);
+
+					System.out.println(":isBio:::::::::::::::::::::::"+isBio);
+
+					Map<String, Object> unseededData = null;
+					try {
+						System.out.println(idaClientID+"::"+idaClientSecret+"::"+authUrl+"::"+ idRepoUrl+"::"+ uinSalt+"::"+tokenIDLength+"::"+partnerCodeSalt);
+						UnseededIdentityImpl handler = new UnseededIdentityImpl(idaClientID, idaClientSecret, authUrl, idRepoUrl, uinSalt, tokenIDLength, partnerCodeSalt);
+						unseededData = handler.getUnseededIdentity(id, idType.getType(), isBio, filterAttributes, hashedId);
+						if (unseededData != null) {
+							return unseededData;
+						}
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
 			}
 
 			logger.info(IdAuthCommonConstants.SESSION_ID, this.getClass().getSimpleName(), "getIdentity",
 					"Generated HASHID >> " + hashedId);
-
 			if (isBio) {
 				entity = identityRepo.getOne(hashedId);
 			} else {
