@@ -55,16 +55,20 @@ public class UnseededIdentityImpl {
     @Value("${KEYBASEDTOKENAPI}")
     private String authUrl;
 
-    private String uinSalt="salt";
+    //private String uinSalt="salt";
 
     @Autowired
     private ObjectMapper mapper = new ObjectMapper();
 
-    private int tokenIDLength=32;
-
-    private String partnerCodeSalt="psalt";
     private String authPartherId="mpartner-default-auth";
 
+    @Value("${mosip.kernel.tokenid.uin.salt")
+    private String uinSalt;
+
+    @Value("${mosip.kernel.tokenid.partnercode.salt")
+    private String partnerCodeSalt;
+    @Value("${mosip.kernel.tokenid.length")
+    private Integer tokenIDLength;
 
     private Logger mosipLogger = IdaLogger.getLogger(IdAuthSecurityManager.class);
 

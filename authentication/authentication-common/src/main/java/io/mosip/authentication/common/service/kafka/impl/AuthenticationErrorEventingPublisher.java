@@ -91,18 +91,31 @@ public class AuthenticationErrorEventingPublisher {
 	private void sendEvents(BaseRequestDTO baserequestdto, String headerSignature, Optional<PartnerDTO> partner,
 			IdAuthenticationBusinessException e, Map<String, Object> metadata) {
 		logger.info("Inside sendEvents authentication error eventing");
-		logger.info("Inside partner data to get certificate for authentication error eventing encryption");
+		logger.info("Inside partner data to get certificate for authentication error eventing encryption: ",partnerId);
 		Optional<PartnerData> partnerDataCert = partnerDataRepo.findByPartnerId(partnerId);
+
+		System.out.printf("............."+partnerDataCert);
+		System.out.printf("Partenr..........."+partnerId);
+		System.out.println("Present ...."+partnerDataCert.isPresent());
+
 		if (partnerDataCert.isEmpty()) {
 			logger.info("Partner is not configured for encrypting individual id.");
 		} else {
+			System.out.println("Error: ");
+			//FIXME
 			Map<String, Object> eventData = new HashMap<>();
-			eventData.put(ERROR_CODE, e.getErrorCode());
-			eventData.put(ERROR_MESSAGE, e.getErrorText());
+			eventData.put(ERROR_CODE, "UNSEED_FAILD_01");
+			eventData.put(ERROR_MESSAGE, "UNSEED MESSAGE");
 			eventData.put(REQUESTDATETIME, DateUtils.formatToISOString(DateUtils.getUTCCurrentDateTime()));
 			eventData.put(INDIVIDUAL_ID,
 					encryptIndividualId(baserequestdto.getIndividualId(), partnerDataCert.get().getCertificateData()));
+
+			//System.out.println("Encrypted: "+e.getErrorCode());
+
 			eventData.put(AUTH_PARTNER_ID, partner.map(PartnerDTO::getPartnerId).orElse(null));
+
+			System.out.println("AUTH_PARTNER_ID: "+AUTH_PARTNER_ID);
+
 			eventData.put(INDIVIDUAL_ID_TYPE, baserequestdto.getIndividualIdType());
 			eventData.put(ENTITY_NAME, partner.map(PartnerDTO::getPartnerName).orElse(null));
 			eventData.put(REQUEST_SIGNATURE, headerSignature);

@@ -188,8 +188,12 @@ public class AuthFacadeImpl implements AuthFacade {
 		if (!identityRepo.existsById(idvidHash)) {
 			Optional<PartnerDTO> partner = partnerService.getPartner(partnerId, authRequestDTO.getMetadata());
 			IdAuthenticationBusinessException e = new IdAuthenticationBusinessException();
+
+
 			authenticationErrorEventingPublisher.notify(authRequestDTO, "",
 					partner, e, authRequestDTO.getMetadata());
+
+
 		}
 
 		String token = idService.getToken(idResDTO);
