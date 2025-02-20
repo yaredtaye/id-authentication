@@ -89,10 +89,16 @@ public class UnseededIdentityImpl {
     public Map<String,Object> getUnseededIdentity(String id, String idType,boolean isBio, Set<String> filterAtributes,String hashedId) throws Exception {
         System.out.println("TECHNIFY: getUnseededIdentity");
         Map<String,Object> result= getDataFromIDRepo(id,idType,isBio);
+
+        String uin = (String) result.get("UIN");
+
+        System.out.printf("UIN: "+uin);
+
         result= getNormalizedDataForID(result, filterAtributes);
 
-        result.put("TOKEN",generateTokenID(id, authPartherId));
+        result.put("TOKEN",generateTokenID(uin, authPartherId));
         result.put("ID_HASH",hashedId);
+        result.put("UIN", uin);
 
         return result;
     }
@@ -177,7 +183,7 @@ public class UnseededIdentityImpl {
                 JSONObject identity =  jsonObject2.getJSONObject("response").getJSONObject("identity");
                 identity.put("name", identity.getJSONArray("fullName"));
                 result.put("identity", mapper.readValue(identity.toString(),Object.class));
-
+                result.put("UIN", identity.getString("UIN"));
                 if(isBio){
                     result.put("Face",getPhoto(jsonObject2.getJSONObject("response").getJSONArray("documents")));
                 }

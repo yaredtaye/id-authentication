@@ -98,6 +98,8 @@ public class AuthenticationErrorEventingPublisher {
 		System.out.printf("Partenr..........."+partnerId);
 		System.out.println("Present ...."+partnerDataCert.isPresent());
 
+		System.out.println("UIN ...."+baserequestdto.getIndividualId());
+
 		if (partnerDataCert.isEmpty()) {
 			logger.info("Partner is not configured for encrypting individual id.");
 		} else {

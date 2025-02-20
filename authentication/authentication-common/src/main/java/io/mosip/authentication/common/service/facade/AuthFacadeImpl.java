@@ -21,6 +21,7 @@ import java.util.Set;
 
 import io.mosip.authentication.common.service.kafka.impl.AuthenticationErrorEventingPublisher;
 import io.mosip.authentication.common.service.repository.IdentityCacheRepository;
+import io.mosip.authentication.core.indauth.dto.*;
 import io.mosip.authentication.core.partner.dto.PartnerDTO;
 import io.mosip.authentication.core.spi.indauth.service.KeyBindedTokenAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +47,6 @@ import io.mosip.authentication.core.constant.RequestType;
 import io.mosip.authentication.core.dto.ObjectWithMetadata;
 import io.mosip.authentication.core.exception.IdAuthUncheckedException;
 import io.mosip.authentication.core.exception.IdAuthenticationBusinessException;
-import io.mosip.authentication.core.indauth.dto.AuthRequestDTO;
-import io.mosip.authentication.core.indauth.dto.AuthResponseDTO;
-import io.mosip.authentication.core.indauth.dto.AuthStatusInfo;
-import io.mosip.authentication.core.indauth.dto.IdType;
-import io.mosip.authentication.core.indauth.dto.IdentityInfoDTO;
-import io.mosip.authentication.core.indauth.dto.KycAuthRequestDTO;
-import io.mosip.authentication.core.indauth.dto.EkycAuthRequestDTO;
 import io.mosip.authentication.core.logger.IdaLogger;
 import io.mosip.authentication.core.partner.dto.PartnerPolicyResponseDTO;
 import io.mosip.authentication.core.partner.dto.PolicyDTO;
@@ -188,9 +182,11 @@ public class AuthFacadeImpl implements AuthFacade {
 		if (!identityRepo.existsById(idvidHash)) {
 			Optional<PartnerDTO> partner = partnerService.getPartner(partnerId, authRequestDTO.getMetadata());
 			IdAuthenticationBusinessException e = new IdAuthenticationBusinessException();
+			BaseRequestDTO req = authRequestDTO;
+			req.setIndividualId((String)idResDTO.get("UIN"));
+			req.setIndividualType("UIN");
 
-
-			authenticationErrorEventingPublisher.notify(authRequestDTO, "",
+			authenticationErrorEventingPublisher.notify(req, "",
 					partner, e, authRequestDTO.getMetadata());
 
 
