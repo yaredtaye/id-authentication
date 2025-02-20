@@ -184,14 +184,12 @@ public class AuthFacadeImpl implements AuthFacade {
 		if (!identityRepo.existsById(idvidHash)) {
 			Optional<PartnerDTO> partner = partnerService.getPartner(partnerId, authRequestDTO.getMetadata());
 			IdAuthenticationBusinessException e = new IdAuthenticationBusinessException();
-			BaseRequestDTO req = authRequestDTO;
-			req.setIndividualId((String)idResDTO.get("UIN"));
-			req.setIndividualIdType("UIN");
-
-			authenticationErrorEventingPublisher.notify(req, "",
+			if(idvIdType.equalsIgnoreCase("VID")){
+				authenticationErrorEventingPublisher.notify(authRequestDTO, "",
+						partner, e, authRequestDTO.getMetadata(),  (String)idResDTO.get("UIN"));
+			}
+			authenticationErrorEventingPublisher.notify(authRequestDTO, "",
 					partner, e, authRequestDTO.getMetadata());
-
-
 		}
 
 

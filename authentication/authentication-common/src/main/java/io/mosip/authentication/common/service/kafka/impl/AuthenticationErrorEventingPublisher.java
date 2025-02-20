@@ -81,7 +81,16 @@ public class AuthenticationErrorEventingPublisher {
 	public void notify(BaseRequestDTO baserequestdto, String headerSignature, Optional<PartnerDTO> partner,
 			IdAuthenticationBusinessException e, Map<String, Object> metadata) {
 		try {
-			sendEvents(baserequestdto, headerSignature, partner, e, metadata);
+			sendEvents(baserequestdto, headerSignature, partner, e, metadata, "");
+		} catch (Exception exception) {
+			logger.error(IdRepoSecurityManager.getUser(), "Authentication error eventing", "notify",
+					exception.getMessage());
+		}
+	}
+	public void notify(BaseRequestDTO baserequestdto, String headerSignature, Optional<PartnerDTO> partner,
+					   IdAuthenticationBusinessException e, Map<String, Object> metadata, String additionalData) {
+		try {
+			sendEvents(baserequestdto, headerSignature, partner, e, metadata, additionalData);
 		} catch (Exception exception) {
 			logger.error(IdRepoSecurityManager.getUser(), "Authentication error eventing", "notify",
 					exception.getMessage());
@@ -89,7 +98,7 @@ public class AuthenticationErrorEventingPublisher {
 	}
 
 	private void sendEvents(BaseRequestDTO baserequestdto, String headerSignature, Optional<PartnerDTO> partner,
-			IdAuthenticationBusinessException e, Map<String, Object> metadata) {
+			IdAuthenticationBusinessException e, Map<String, Object> metadata, String additionalData) {
 		logger.info("Inside sendEvents authentication error eventing");
 		logger.info("Inside partner data to get certificate for authentication error eventing encryption: ",partnerId);
 		Optional<PartnerData> partnerDataCert = partnerDataRepo.findByPartnerId(partnerId);
@@ -98,7 +107,7 @@ public class AuthenticationErrorEventingPublisher {
 		System.out.printf("Partenr..........."+partnerId);
 		//System.out.println("Present ...."+partnerDataCert.isPresent());
 
-		System.out.println("UIN ...."+baserequestdto.getIndividualId());
+		System.out.println("UIN ...."+(additionalData != null?additionalData:baserequestdto.getIndividualId()));
 
 		if (partnerDataCert.isEmpty()) {
 			logger.info("Partner is not configured for encrypting individual id.");
@@ -120,6 +129,9 @@ public class AuthenticationErrorEventingPublisher {
 
 			eventData.put(INDIVIDUAL_ID_TYPE, baserequestdto.getIndividualIdType());
 			eventData.put(ENTITY_NAME, partner.map(PartnerDTO::getPartnerName).orElse(null));
+
+			eventData.put("additionalData", additionalData);
+
 			eventData.put(REQUEST_SIGNATURE, headerSignature);
 			EventModel eventModel = createEventModel(authenticationErrorEventingTopic, eventData);
 			publishEvent(eventModel);
