@@ -94,9 +94,9 @@ public class AuthenticationErrorEventingPublisher {
 		logger.info("Inside partner data to get certificate for authentication error eventing encryption: ",partnerId);
 		Optional<PartnerData> partnerDataCert = partnerDataRepo.findByPartnerId(partnerId);
 
-		System.out.printf("............."+partnerDataCert);
+		//System.out.printf("............."+partnerDataCert);
 		System.out.printf("Partenr..........."+partnerId);
-		System.out.println("Present ...."+partnerDataCert.isPresent());
+		//System.out.println("Present ...."+partnerDataCert.isPresent());
 
 		System.out.println("UIN ...."+baserequestdto.getIndividualId());
 

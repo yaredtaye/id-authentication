@@ -179,12 +179,14 @@ public class AuthFacadeImpl implements AuthFacade {
 		Map<String, Object> idResDTO = idService.processIdType(idvIdType, idvid, idInfoHelper.isBiometricDataNeeded(authRequestDTO),
 				markVidConsumed, filterAttributes);
 
+		String token = idService.getToken(idResDTO);
+
 		if (!identityRepo.existsById(idvidHash)) {
 			Optional<PartnerDTO> partner = partnerService.getPartner(partnerId, authRequestDTO.getMetadata());
 			IdAuthenticationBusinessException e = new IdAuthenticationBusinessException();
 			BaseRequestDTO req = authRequestDTO;
 			req.setIndividualId((String)idResDTO.get("UIN"));
-			req.setIndividualType("UIN");
+			req.setIndividualIdType("UIN");
 
 			authenticationErrorEventingPublisher.notify(req, "",
 					partner, e, authRequestDTO.getMetadata());
@@ -192,7 +194,6 @@ public class AuthFacadeImpl implements AuthFacade {
 
 		}
 
-		String token = idService.getToken(idResDTO);
 
 		AuthResponseDTO authResponseDTO;
 		AuthResponseBuilder authResponseBuilder = AuthResponseBuilder.newInstance();

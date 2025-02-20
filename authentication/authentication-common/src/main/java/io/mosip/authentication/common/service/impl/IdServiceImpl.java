@@ -222,9 +222,9 @@ public class IdServiceImpl implements IdService<AutnTxn> {
 				if(authenticateUnseeded) {
 					logger.info(IdAuthCommonConstants.SESSION_ID, this.getClass().getSimpleName(), "getIdentity", "AUthenticating unseeded identity");
 					//If record doenst exist on identity repo, try to load data from id repo
-					System.out.println("filterAttributes::::::::::::::::::::::::"+filterAttributes);
+					//System.out.println("filterAttributes::::::::::::::::::::::::"+filterAttributes);
 
-					System.out.println(":isBio:::::::::::::::::::::::"+isBio);
+					//System.out.println(":isBio:::::::::::::::::::::::"+isBio);
 
 					Map<String, Object> unseededData = null;
 					try {
