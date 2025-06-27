@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import io.mosip.authentication.common.service.entity.CredentialEventStore;
 import io.mosip.kernel.core.dataaccess.spi.repository.BaseRepository;
-
+import javax.transaction.Transactional;
 /**
  * The Interface CredentialEventStoreRepository.
  * @author Loganathan Sekar
@@ -30,7 +30,12 @@ public interface CredentialEventStoreRepository extends BaseRepository<Credentia
 	@Query(value = "SELECT * from credential_event_store where status_code in ('NEW', 'FAILED')" // then, try processing old entries
 			, nativeQuery = true)
 	Page<CredentialEventStore> findNewOrFailedEvents(Pageable pageable);
-	
+
+
+	@Transactional
+	@Query(value = "SELECT * from credential_event_store where status_code in ('NEW', 'FAILED') order by status_code desc, retry_count asc, cr_dtimes asc FOR UPDATE SKIP LOCKED LIMIT :pageSize" // then, try processing old entries
+			, nativeQuery = true)
+	List<CredentialEventStore> findNewOrFailedEvents(@Param("pageSize")Integer pageSize);
 	/**
 	 * Find max cr D times by status code.
 	 *

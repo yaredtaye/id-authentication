@@ -267,7 +267,7 @@ public class CredentialStoreServiceImpl implements CredentialStoreService {
 		credentialEventStore.setUpdBy(IDA);
 		credentialEventStore.setUpdDTimes(DateUtils.getUTCCurrentDateTime());
 		
-		credentialEventRepo.save(credentialEventStore);
+		//credentialEventRepo.save(credentialEventStore);
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class CredentialStoreServiceImpl implements CredentialStoreService {
 		
 		String eventObjectStr = credentialEventStore.getEventObject();
 		try {
-			mosipLogger.info(IdAuthCommonConstants.SESSION_ID, this.getClass().getName(), "processCredentialStoreEvent",
+			mosipLogger.debug(IdAuthCommonConstants.SESSION_ID, this.getClass().getName(), "processCredentialStoreEvent",
 					"Processing credential store event: " + objectMapper.writeValueAsString(credentialEventStore));
 			
 			EventModel eventModel = objectMapper.readValue(eventObjectStr.getBytes(), EventModel.class);
@@ -425,11 +425,11 @@ public class CredentialStoreServiceImpl implements CredentialStoreService {
 	/**
 	 * Store identity entity.
 	 *
-	 * @param idEntities the id entities
+	 * @param identityEntity the id entities
 	 */
 	@Override
-	public void storeIdentityEntity(List<? extends IdentityEntity> idEntities) {
-		identityCacheRepo.saveAll(idEntities);
+	public void storeIdentityEntity(IdentityEntity identityEntity) {
+		identityCacheRepo.save(identityEntity);
 	}
 
 	/**
