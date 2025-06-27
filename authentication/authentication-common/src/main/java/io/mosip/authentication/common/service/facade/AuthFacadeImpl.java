@@ -188,8 +188,10 @@ public class AuthFacadeImpl implements AuthFacade {
 				authenticationErrorEventingPublisher.notify(authRequestDTO, "",
 						partner, e, authRequestDTO.getMetadata(),  (String)idResDTO.get("UIN"));
 			}
-			authenticationErrorEventingPublisher.notify(authRequestDTO, "",
-					partner, e, authRequestDTO.getMetadata());
+			else {
+				authenticationErrorEventingPublisher.notify(authRequestDTO, "",
+						partner, e, authRequestDTO.getMetadata());
+			}
 		}
 
 
